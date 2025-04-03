@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>16x16 Grid Game with Manual Directional Walls</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div id="game-container"></div>
+
+    <div class="mode-indicator" id="mode-indicator">Mode: Move Player</div>
+
+    <div id="controls">
+        <button id="reset-btn">Reset Game</button>
+        <button id="toggle-mode-btn">Switch to Wall Creation Mode</button>
+
+        <div class="wall-buttons" id="wall-controls" style="display: none;">
+            <span id="wall-direction-label">Wall Direction:</span>
+            <button id="wall-left-btn" class="wall-btn">Left</button>
+            <button id="wall-right-btn" class="wall-btn">Right</button>
+            <button id="wall-top-btn" class="wall-btn">Top</button>
+            <button id="wall-bottom-btn" class="wall-btn">Bottom</button>
+            <button id="clear-walls-btn">Clear All Walls</button>
+        </div>
+    </div>
+
+    <div class="legend">
+        <h3>Wall Types:</h3>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #333;"></div>
+            <span>Middle Wall - Cannot pass</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #e74c3c;"></div>
+            <span>Directional Wall - Cannot pass in that direction</span>
+        </div>
+    </div>
+
+    <script src="board.js"></script>
+    <script src="bfs_search.js"></script>
+    <script src="calculate_heuristic.js "></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
