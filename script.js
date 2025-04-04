@@ -359,48 +359,6 @@ function attemptMove(newX, newY, direction) {
   // return playerPosition;
 }
 
-function bfsGrid(grid, startRow, startCol) {
-  let queue = [[startRow, startCol]];
-  let visited = new Set([`${startRow},${startCol}`]);
-
-  while (queue.length > 0) {
-    let [row, col] = queue.shift();
-    // console.log(`Visiting: (${row}, ${col})`);
-    gameGrid[playerPosition.y][playerPosition.x].isWall = false;
-    placePlayer(row, col, selectedPlayer);
-    gameGrid[playerPosition.y][playerPosition.x].isWall = true;
-
-    for (let direction of ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"]) {
-      // console.log(`Direction: ${direction}`);
-      gameGrid[playerPosition.y][playerPosition.x].isWall = false;
-      placePlayer(row, col, selectedPlayer);
-      gameGrid[playerPosition.y][playerPosition.x].isWall = true;
-
-      // console.log(`Player Position: (${row}, ${col})`);
-      //  ha ez visszater valami boolean ertekkel akkor jobb lehet
-      attemptMove(row, col, direction);
-      // console.log(`New Position: (${playerPosition.x}, ${playerPosition.y})`);
-
-      if (
-        // Check if walkable
-        !visited.has(`${playerPosition.x},${playerPosition.y}`)
-      ) {
-        visited.add(`${playerPosition.x},${playerPosition.y}`);
-        queue.push([playerPosition.x, playerPosition.y]);
-
-        // console.log("itt vagyok");
-      }
-    }
-    if (playerPosition.x === 15 && playerPosition.y === 15) {
-      console.log("nyertem");
-      console.log("nyertem");
-      console.log("nyertem");
-      break;
-    }
-  }
-  // console.log("");
-  // console.log(gameGrid);
-}
 
 function setAllPlayersPositions(players, positions) {
   for (let i = 0; i < players.length; i++) {
@@ -415,8 +373,8 @@ function calculatedHeuristic(heuristicBoard, player) {
   return heuristicBoard[player.y][player.x];
 }
 
-function aStar(player) {
-  const heuristicBoard = boardHeuristic(5, 8, gameGrid, gridSize);
+function aStar(player, goalX, goalY) {
+  const heuristicBoard = boardHeuristic(goalX, goalY, gameGrid, gridSize);
   const initialPositions = players.map(p => [p.x, p.y]);
 
   // Create a priority queue
@@ -434,11 +392,7 @@ function aStar(player) {
 
   while (!openList.isEmpty()) {
     const current = openList.extractMin();
-    // console.log("Current state:");
-    // console.log(current);
     const positions = current.positions;
-    // console.log("Positions:");
-    // console.log(positions);
     const currentGScore = current.gScore;
 
     // Set all players to their positions in this state
@@ -486,17 +440,14 @@ function aStar(player) {
 
         // Get new positions of all players after move
         const newPositions = players.map(p => [p.x, p.y]);
-        // console.log("New positions:");
-        // console.log(newPositions);
         const positionKey = JSON.stringify(newPositions);
 
         // If this is a new state
         if (!visited.has(positionKey)) {
-          // console.log("New position found");
           visited.add(positionKey);
 
           // Only recalculate heuristic if player3 moved
-          const newHeuristic = playerName === "player3"
+          const newHeuristic = selectedPlayer === "player3"
             ? calculatedHeuristic(heuristicBoard, player)
             : current.heuristic;
 
@@ -509,13 +460,11 @@ function aStar(player) {
             gScore: newGScore,
             fScore: newFScore
           });
-          // console.log("New position added to queue");
-          // console.log(openList.heap);
         }
 
         if (
-          playerPosition.x === 5 &&
-          playerPosition.y === 8 &&
+          playerPosition.x === goalX &&
+          playerPosition.y === goalY &&
           selectedPlayer === "player3"
       ) {
           console.log("nyertem");
@@ -536,11 +485,11 @@ function aStar(player) {
         
 
         // Reset to original position
-        gameGrid[playerPosition.y][playerPosition.x].isWall = false;
-        // placePlayer(row, col, `player${i + 1}`);
-        playerPosition.x = row;
-        playerPosition.y = col;
-        gameGrid[playerPosition.y][playerPosition.x].isWall = true;
+        // gameGrid[playerPosition.y][playerPosition.x].isWall = false;
+        // // placePlayer(row, col, `player${i + 1}`);
+        // playerPosition.x = row;
+        // playerPosition.y = col;
+        // gameGrid[playerPosition.y][playerPosition.x].isWall = true;
       }
 
       // Reset the wall status
@@ -644,90 +593,6 @@ function aStarSearch(grid, startX, startY) {
   }
 }
 
-// function bfsGrid2(grid) {
-//   // Create a copy of initial player positions to avoid modifying originals while working
-//   const initialPositions = players.map(p => [p.x, p.y]);
-
-//   // Use a more efficient queue implementation
-//   let queue = [initialPositions];
-
-//   // Create a more efficient visited set representation
-//   const getPositionKey = positions => positions.map(([x, y]) => `${x},${y}`).join('|');
-//   let visited = new Set([getPositionKey(initialPositions)]);
-
-//   // Track the path to solution
-//   const pathMap = new Map();
-
-//   // Set reasonable iteration limit
-//   const MAX_ITERATIONS = 10000;
-//   let iterations = 0;
-
-//   while (queue.length > 0 && iterations < MAX_ITERATIONS) {
-//     iterations++;
-
-//     const currentPositions = queue.shift();
-
-//     // Check for win condition for any player
-//     for (let i = 0; i < currentPositions.length; i++) {
-//       const [x, y] = currentPositions[i];
-//       if (x === 0 && y === 0) {
-//         console.log("Solution found!");
-//         console.log(`Player ${i+1} reached (0,0) in ${iterations} steps`);
-//         // return "nyerteeel"
-//         // Reconstruct and return path if needed
-//         return reconstructPath(currentPositions, pathMap, getPositionKey);
-//       }
-//     }
-
-//     // Try each player's possible moves
-//     for (let playerIndex = 0; playerIndex < currentPositions.length; playerIndex++) {
-//       const directions = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
-
-//       for (const direction of directions) {
-//         // Create a copy of positions to simulate this move
-//         const newPositions = currentPositions.map(pos => [...pos]);
-
-//         // Calculate new position based on direction without actually moving
-//         const [currentX, currentY] = newPositions[playerIndex];
-//         let newX = currentX;
-//         let newY = currentY;
-
-//         // Calculate new coordinates based on direction
-//         switch (direction) {
-//           case "ArrowUp": newY = Math.max(0, currentY - 1); break;
-//           case "ArrowDown": newY = Math.min(grid.length - 1, currentY + 1); break;
-//           case "ArrowLeft": newX = Math.max(0, currentX - 1); break;
-//           case "ArrowRight": newX = Math.min(grid[0].length - 1, currentX + 1); break;
-//         }
-
-//         // Check if the move is valid (not into a wall)
-//         if (!grid[newY][newX].isWall) {
-//           newPositions[playerIndex] = [newX, newY];
-
-//           // Check if this configuration has been visited
-//           const posKey = getPositionKey(newPositions);
-//           if (!visited.has(posKey)) {
-//             visited.add(posKey);
-//             queue.push(newPositions);
-//             pathMap.set(posKey, {
-//               previousPositions: currentPositions,
-//               playerMoved: playerIndex,
-//               direction: direction
-//             });
-//           }
-//         }
-//       }
-//     }
-//   }
-
-//   // If we reach here, no solution was found
-//   if (iterations >= MAX_ITERATIONS) {
-//     console.log("Search terminated: reached maximum iterations");
-//   } else {
-//     console.log("No solution found");
-//   }
-//   return null;
-// }
 
 // Helper function to reconstruct the path from the solution
 function reconstructPath(finalPositions, pathMap, getPositionKey) {
@@ -765,14 +630,10 @@ function handleKeyPress(event) {
     return;
   }
 
-  if (event.key === "s") {
-    bfsGrid(board, playerPosition.x, playerPosition.y);
-    return;
-  }
 
   if (event.key === "h") {
     // boardHeuristic(1, 1, gameGrid, gridSize);
-    aStar(player3);
+    aStar(player3, 5, 8);
     console.log(gameGrid);
     for (let i = 0; i < players.length; i++) {
       playerPosition = players[i];
@@ -785,10 +646,15 @@ function handleKeyPress(event) {
   console.log("handleKeyPress");
   attemptMove(playerPosition.x, playerPosition.y, event.key);
 
+  const currentPlayer = selectedPlayer;
+  const currentPosition = playerPosition;
+
   for (let i = 0; i < players.length; i++) {
     playerPosition = players[i];
     placePlayer(players[i].x, players[i].y, `player${i + 1}`);
   }
+  selectedPlayer = currentPlayer;
+  playerPosition = currentPosition;
   event.preventDefault();
 }
 
