@@ -427,16 +427,12 @@ function aStar(player) {
     gScore: 0,
     fScore: calculatedHeuristic(heuristicBoard, player)
   });
-  console.log("Initial positions:");
-  console.log(initialPositions);
+
 
   // Track visited states more efficiently
   const visited = new Set([JSON.stringify(initialPositions)]);
-  console.log("Visited states:");
-  console.log(visited);
-  let count = 0;
+
   while (!openList.isEmpty()) {
-    // count++;
     const current = openList.extractMin();
     // console.log("Current state:");
     // console.log(current);
@@ -457,7 +453,7 @@ function aStar(player) {
     // Try moving each player
     for (let i = 0; i < positions.length; i++) {
       // console.log(`Trying player ${i + 1}`);
-      setAllPlayersPositions(players, positions);
+      // setAllPlayersPositions(players, positions);
 
       playerPosition = players[i];
       const [row, col] = positions[i];
@@ -528,6 +524,10 @@ function aStar(player) {
           console.log(selectedPlayer);
           console.log(positions);
           console.log(player3.x, player3.y);
+          console.log("Heuristic:");
+          console.log(calculatedHeuristic(heuristicBoard, player));
+          console.log("Current GScore:");
+          console.log(currentGScore);
           // placePlayer(positions[2][0], positions[2][1], 'player3');
           console.log(gameGrid);
 
