@@ -15,6 +15,11 @@
 
     <div id="controls">
         <button id="reset-btn">Reset Game</button>
+        <button id="toggle-solver-btn">Solver</button>
+        <div class="solver-buttons" id="solver-controls" style="display: none;">
+            <span id="goal-cordinates-label">Goal cordinates:</span>
+            <button id="solve-btn" class="wall-btn">Left</button>
+        </div>
         <button id="toggle-mode-btn">Switch to Wall Creation Mode</button>
 
         <div class="wall-buttons" id="wall-controls" style="display: none;">
@@ -34,7 +39,7 @@
             <span>Middle Wall - Cannot pass</span>
         </div>
         <div class="legend-item">
-            <div class="legend-color" style="background-color: #e74c3c;"></div>
+            <div class="legend-color" style="background-color: #1a1211;"></div>
             <span>Directional Wall - Cannot pass in that direction</span>
         </div>
     </div>
