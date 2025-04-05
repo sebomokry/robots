@@ -446,7 +446,6 @@ function handleKeyPress(event) {
 
 // Reset the game
 function resetGame() {
-  playerPosition = { x: 1, y: 1 };
   initializeGrid();
 
   // Reset to move mode
