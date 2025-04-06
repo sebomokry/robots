@@ -15,11 +15,20 @@
 
     <div id="controls">
         <button id="reset-btn">Reset Game</button>
-        <button id="toggle-solver-btn">Solver</button>
+
+        <button id="toggle-solver-btn">Solver Mode</button>
         <div class="solver-buttons" id="solver-controls" style="display: none;">
             <span id="goal-cordinates-label">Goal cordinates:</span>
-            <button id="solve-btn" class="wall-btn">Left</button>
+            <input type="text" id="goal-coordinates-x" placeholder="x" class="coordinate-input" disabled>
+            <input type="text" id="goal-coordinates-y" placeholder="y" class="coordinate-input" disabled>
+            <!-- selected player color -->
+            <span id="player-color-label">Player Color:</span>
+            <div class="player5" id="player-color"
+                style="display: inline-block; width: 20px; height: 20px; margin: 0 5px; vertical-align: middle;">
+            </div>
+            <button id="solver-btn" class="wall-btn">Solve</button>
         </div>
+
         <button id="toggle-mode-btn">Switch to Wall Creation Mode</button>
 
         <div class="wall-buttons" id="wall-controls" style="display: none;">
@@ -32,18 +41,9 @@
         </div>
     </div>
 
-    <div class="legend">
-        <h3>Wall Types:</h3>
-        <div class="legend-item">
-            <div class="legend-color" style="background-color: #333;"></div>
-            <span>Middle Wall - Cannot pass</span>
-        </div>
-        <div class="legend-item">
-            <div class="legend-color" style="background-color: #1a1211;"></div>
-            <span>Directional Wall - Cannot pass in that direction</span>
-        </div>
-    </div>
 
+
+    <script src="modesControll.js"></script>
     <script src="board.js"></script>
     <!-- <script src="boardRotations.js"></script> -->
     <script src="bfs_search.js"></script>

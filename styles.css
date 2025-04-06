@@ -140,7 +140,7 @@ button:hover {
     gap: 5px;
 }
 
-#wall-direction-label {
+#wall-direction-label, #goal-cordinates-label, #player-color-label {
     margin-right: 10px;
     align-self: center;
     font-weight: bold;
@@ -173,3 +173,14 @@ button:hover {
     border-radius: 4px;
     color: #721c24;
 }
+
+.coordinate-input {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    text-align: center;
+    margin: 0 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+

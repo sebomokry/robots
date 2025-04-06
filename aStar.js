@@ -92,6 +92,7 @@ function aStar(player, goalX, goalY, playerColor) {
             playerPosition.y === goalY &&
             selectedPlayer === playerColor
         ) {
+            lastSolvedLength = currentGScore + 1;
             console.log("nyertem");
             console.log("nyertem");
             console.log("nyertem");
@@ -99,9 +100,10 @@ function aStar(player, goalX, goalY, playerColor) {
             console.log(positions);
             console.log(player3.x, player3.y);
             console.log("Heuristic:");
-            console.log(calculatedHeuristic(heuristicBoard, player));
+
+            console.log(calculatedHeuristic(heuristicBoard, player) + 1);
             console.log("Current GScore:");
-            console.log(currentGScore);
+            console.log(lastSolvedLength);
             // placePlayer(positions[2][0], positions[2][1], 'player3');
             console.log(gameGrid);
   

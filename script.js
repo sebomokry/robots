@@ -27,12 +27,16 @@ let gameGrid = Array(gridSize)
       }))
   );
 
-// Game modes
-const MODE_MOVE = "move";
-const MODE_WALL = "wall";
-let currentMode = MODE_MOVE;
+
+// let currentMode = MODES.MOVE;
 let selectedWallDirection = "left";
 let selectedPlayer = "player5";
+
+// Solve with
+let robotToSolve = player5;
+let robotToSolvePathColor = "player5";
+let robotToSolvePosition = { x: 5, y: 8 };
+let lastSolvedLength = 0;
 
 const movement = {
   ArrowUp: { x: 0, y: -1 },
@@ -111,7 +115,7 @@ function initializeGrid() {
 // Handle cell click based on current mode
 function handleCellClick(x, y, event) {
   // console.log(gameGrid);
-  if (currentMode === MODE_MOVE) {
+  if (currentMode === MODES.MOVE) {
     const cell = document.querySelector(`.cell[data-x="${x}"][data-y="${y}"]`);
     if (cell.classList.length > 1) {
       selectedPlayer = cell.classList[1];
@@ -122,8 +126,27 @@ function handleCellClick(x, y, event) {
     }
 
     // movePlayer(x, y);
-  } else if (currentMode === MODE_WALL) {
+  } else if (currentMode === MODES.WALL) {
     toggleDirectionalWall(x, y, selectedWallDirection);
+  } else if (currentMode === MODES.SOLVER) {
+    // Handle solver mode click
+    const cell = document.querySelector(`.cell[data-x="${x}"][data-y="${y}"]`);
+    if (cell.classList.length > 1) {
+      selectedPlayer = cell.classList[1];
+      let num = selectedPlayer.charAt(selectedPlayer.length - 1);
+      playerPosition = players[num - 1];
+      robotToSolve = players[num - 1];
+      document.getElementById("player-color").className = selectedPlayer;
+    } else {
+      robotToSolvePosition.x = x;
+      robotToSolvePosition.y = y;
+      document.getElementById("goal-coordinates-x").value = x;
+      document.getElementById("goal-coordinates-y").value = y;
+    }
+    console.log("Solver mode clicked");
+    console.log(robotToSolve);
+    console.log(robotToSolvePosition);
+    console.log(selectedPlayer);
   }
 }
 
@@ -193,28 +216,28 @@ function clearAllWalls() {
 }
 
 // Toggle game mode
-function toggleGameMode() {
-  if (currentMode === MODE_MOVE) {
-    currentMode = MODE_WALL;
-    document.getElementById("toggle-mode-btn").textContent =
-      "Switch to Player Movement Mode";
-    document.getElementById("wall-controls").style.display = "flex";
-    document.getElementById("mode-indicator").textContent =
-      "Mode: Wall Creation";
-    document.getElementById("mode-indicator").style.backgroundColor = "#d4edda";
-    document.getElementById("mode-indicator").style.borderColor = "#c3e6cb";
-    document.getElementById("mode-indicator").style.color = "#155724";
-  } else {
-    currentMode = MODE_MOVE;
-    document.getElementById("toggle-mode-btn").textContent =
-      "Switch to Wall Creation Mode";
-    document.getElementById("wall-controls").style.display = "none";
-    document.getElementById("mode-indicator").textContent = "Mode: Move Player";
-    document.getElementById("mode-indicator").style.backgroundColor = "#f8d7da";
-    document.getElementById("mode-indicator").style.borderColor = "#f5c6cb";
-    document.getElementById("mode-indicator").style.color = "#721c24";
-  }
-}
+// function toggleGameMode() {
+//   if (currentMode === MODE_MOVE) {
+//     currentMode = MODE_WALL;
+//     document.getElementById("toggle-mode-btn").textContent =
+//       "Switch to Player Movement Mode";
+//     document.getElementById("wall-controls").style.display = "flex";
+//     document.getElementById("mode-indicator").textContent =
+//       "Mode: Wall Creation";
+//     document.getElementById("mode-indicator").style.backgroundColor = "#d4edda";
+//     document.getElementById("mode-indicator").style.borderColor = "#c3e6cb";
+//     document.getElementById("mode-indicator").style.color = "#155724";
+//   } else {
+//     currentMode = MODE_MOVE;
+//     document.getElementById("toggle-mode-btn").textContent =
+//       "Switch to Wall Creation Mode";
+//     document.getElementById("wall-controls").style.display = "none";
+//     document.getElementById("mode-indicator").textContent = "Mode: Move Player";
+//     document.getElementById("mode-indicator").style.backgroundColor = "#f8d7da";
+//     document.getElementById("mode-indicator").style.borderColor = "#f5c6cb";
+//     document.getElementById("mode-indicator").style.color = "#721c24";
+//   }
+// }
 
 // Set selected wall direction
 function setWallDirection(direction) {
@@ -290,7 +313,7 @@ function getRelativeDirection(curX, curY, x, y) {
 
 // Move player to new position if valid and in move mode
 function movePlayer(x, y) {
-  if (currentMode !== MODE_MOVE) return;
+  if (currentMode !== MODES.MOVE) return;
 
   // Check if the new position is valid
   let direction = getRelativeDirection(
@@ -419,15 +442,16 @@ function handleKeyPress(event) {
 
   if (event.key === "h") {
     // boardHeuristic(1, 1, gameGrid, gridSize);
-    aStar(player2, 5, 8, "player2");
+    aStar(robotToSolve, robotToSolvePosition.x, robotToSolvePosition.y, selectedPlayer);
     console.log(gameGrid);
     for (let i = 0; i < players.length; i++) {
       playerPosition = players[i];
       placePlayer(players[i].x, players[i].y, `player${i + 1}`);
     }
+    alert(`Puzzle solved in ${lastSolvedLength} moves!`);
     return;
   }
-  if (currentMode !== MODE_MOVE) return;
+  if (currentMode !== MODES.MOVE) return;
 
   console.log("handleKeyPress");
   attemptMove(playerPosition.x, playerPosition.y, event.key);
@@ -449,38 +473,59 @@ function resetGame() {
   initializeGrid();
 
   // Reset to move mode
-  if (currentMode !== MODE_MOVE) {
+  if (currentMode !== MODES.MOVE) {
     toggleGameMode();
   }
 }
 
 // Initialize event listeners
-function initEventListeners() {
-  document.getElementById("reset-btn").addEventListener("click", resetGame);
-  document
-    .getElementById("toggle-mode-btn")
-    .addEventListener("click", toggleGameMode);
-  document
-    .getElementById("clear-walls-btn")
-    .addEventListener("click", clearAllWalls);
+// function initEventListeners() {
+//   document.getElementById("reset-btn").addEventListener("click", resetGame);
+//   document
+//     .getElementById("toggle-solver-btn")
+//     .addEventListener("click", () => {
+//       const solverControls = document.getElementById('solver-controls');
+//       if (solverControls.style.display === 'none') {
+//         currentMode = MODE_SOLVER;
+//         // Show the solver controls
+//         document.getElementById("toggle-solver-btn").textContent =
+//         "Switch to Player Movement Mode";
+//         solverControls.style.display = 'block';
+//         document.getElementById("toggle-mode-btn").style.display = 'none';
+//     } else {
+//         currentMode = MODE_MOVE;
+//         // Hide the solver controls
+//         document.getElementById("toggle-solver-btn").textContent =
+//         "Solver Mode";
+//         solverControls.style.display = 'none';
+//         document.getElementById("toggle-mode-btn").style.display = 'flex';
 
-  // Wall direction buttons
-  document
-    .getElementById("wall-left-btn")
-    .addEventListener("click", () => setWallDirection("left"));
-  document
-    .getElementById("wall-right-btn")
-    .addEventListener("click", () => setWallDirection("right"));
-  document
-    .getElementById("wall-top-btn")
-    .addEventListener("click", () => setWallDirection("top"));
-  document
-    .getElementById("wall-bottom-btn")
-    .addEventListener("click", () => setWallDirection("bottom"));
+//     }
+//     });
+//   document
+//     .getElementById("toggle-mode-btn")
+//     .addEventListener("click", toggleGameMode);
+//   document
+//     .getElementById("clear-walls-btn")
+//     .addEventListener("click", clearAllWalls);
 
-  // Set initial selected wall direction
-  //  setWallDirection('top');
-}
+//   // Wall direction buttons
+//   document
+//     .getElementById("wall-left-btn")
+//     .addEventListener("click", () => setWallDirection("left"));
+//   document
+//     .getElementById("wall-right-btn")
+//     .addEventListener("click", () => setWallDirection("right"));
+//   document
+//     .getElementById("wall-top-btn")
+//     .addEventListener("click", () => setWallDirection("top"));
+//   document
+//     .getElementById("wall-bottom-btn")
+//     .addEventListener("click", () => setWallDirection("bottom"));
+
+//   // Set initial selected wall direction
+//   //  setWallDirection('top');
+// }
 
 // Start the game when page loads
 window.onload = function () {
